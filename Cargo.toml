@@ -1,0 +1,18 @@
+[package]
+name = "sprig"
+version = "0.1.0"
+authors = ["Florian Merz <flomerz@gmail.com>"]
+description = "Template functions for Go templates for Rust"
+license = "MIT"
+repository = "https://github.com/fiji-flo/sprig-rust"
+documentation = "https://docs.rs/crate/sprig"
+keywords = ["golang", "template", "templating", "sprig"]
+category = ["template-engine"]
+readme = "README.md"
+include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
+
+[dependencies]
+gtmpl = { git = "https://github.com/fiji-flo/gtmpl-rust" }
+lazy_static = "0.2"
+serde = "1.0"
+serde_json = "1.0"
