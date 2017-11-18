@@ -4,6 +4,7 @@ extern crate gtmpl_value;
 #[macro_use]
 extern crate lazy_static;
 extern crate data_encoding;
+extern crate itertools;
 
 mod strings;
 

@@ -1,4 +1,6 @@
+use std::cmp;
 use std::str;
+use itertools::join;
 
 use data_encoding::{BASE32, BASE64};
 
@@ -45,6 +47,35 @@ gtmpl_fn!(
 );
 
 gtmpl_fn!(
+    fn abbrevboth(left: i64, right: i64, s: String) -> Result<String, String> {
+        let offset = cmp::min(left as usize, s.len());
+        let max_width = cmp::min(right as usize, s.len());
+        if max_width < 4
+            || offset > 0 && max_width < 7
+            || s.len() <= max_width as usize
+        {
+            Ok(s)
+        } else {
+            if offset <= 4 {
+                Ok(format!("{}...", &s[..(max_width - 3)]))
+            } else if (offset + max_width - 3) < s.len() {
+                let len = offset + max_width - 6;
+                Ok(format!("...{}...", &s[offset..len]))
+            } else {
+                let offset = s.len() - (max_width - 3);
+                Ok(format!("...{}", &s[offset..]))
+            }
+        }
+    }
+);
+
+gtmpl_fn!(
+    fn initials(s: String) -> Result<String, String> {
+        Ok(join(s.split_whitespace().map(|w| (&w[0..1]).to_owned()), ""))
+    }
+);
+
+gtmpl_fn!(
     fn split(sep: String, orig: String) -> Result<Vec<String>, String> {
         Ok(orig.split(&sep).map(|s| s.to_owned()).collect())
     }
@@ -87,12 +118,20 @@ mod tests_mocked {
 
     #[test]
     fn test_base32encode() {
-        test_fn!(base32encode, vvarc!("Hello World!"), "JBSWY3DPEBLW64TMMQQQ====");
+        test_fn!(
+            base32encode,
+            vvarc!("Hello World!"),
+            "JBSWY3DPEBLW64TMMQQQ===="
+        );
     }
 
     #[test]
     fn test_base32decode() {
-        test_fn!(base32decode, vvarc!("JBSWY3DPEBLW64TMMQQQ===="), "Hello World!");
+        test_fn!(
+            base32decode,
+            vvarc!("JBSWY3DPEBLW64TMMQQQ===="),
+            "Hello World!"
+        );
     }
 
     #[test]
@@ -101,7 +140,26 @@ mod tests_mocked {
     }
 
     #[test]
+    fn test_abbrvboth() {
+        test_fn!(abbrevboth, vvarc!(5, 7, "foobarfoobar"), "...r...");
+        test_fn!(abbrevboth, vvarc!(4, 7, "foobarfoobar"), "foob...");
+        test_fn!(abbrevboth, vvarc!(6, 9, "foobarfoobar"), "...foobar");
+        test_fn!(abbrevboth, vvarc!(5, 7, "foobar"), "foobar");
+    }
+
+    #[test]
+    fn test_initials() {
+        test_fn!(initials, vvarc!(""), "");
+        test_fn!(initials, vvarc!(" "), "");
+        test_fn!(initials, vvarc!("Foo Bar"), "FB");
+    }
+
+    #[test]
     fn test_split() {
-        test_fn!(split, vvarc!(" ", "foo bar"), vec!["foo".to_owned(), "bar".to_owned()]);
+        test_fn!(
+            split,
+            vvarc!(" ", "foo bar"),
+            vec!["foo".to_owned(), "bar".to_owned()]
+        );
     }
 }

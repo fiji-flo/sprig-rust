@@ -12,7 +12,9 @@ readme = "README.md"
 include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 
 [dependencies]
-gtmpl = { git = "https://github.com/fiji-flo/gtmpl-rust" }
+gtmpl = { path = "../gtmpl-rust" }
+#gtmpl = { git = "https://github.com/fiji-flo/gtmpl-rust" }
 gtmpl_value = "0.1.0"
 lazy_static = "0.2"
 data-encoding = "2.0.0"
+itertools = "0.7.2"
