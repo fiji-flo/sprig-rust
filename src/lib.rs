@@ -1,8 +1,9 @@
 #[macro_use]
 extern crate gtmpl;
-extern crate serde_json;
+extern crate gtmpl_value;
 #[macro_use]
 extern crate lazy_static;
+extern crate data_encoding;
 
 mod strings;
 
