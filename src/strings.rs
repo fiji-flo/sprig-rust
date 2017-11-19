@@ -1,9 +1,13 @@
+use std::any::Any;
 use std::cmp;
 use std::collections::HashMap;
 use std::str;
+use std::sync::Arc;
 
-use itertools::join;
+use itertools;
 use data_encoding::{BASE32, BASE64};
+
+use gtmpl_value::{from_value, Value};
 
 use utils;
 
@@ -82,10 +86,11 @@ fn abbrevboth(left: i64, right: i64, s: String) -> Result<String, String> {
 gtmpl_fn!(
 #[doc = r#"Given a multi-word string, return the initials. `initials "Matt Butcher"` returns "MB""#]
 fn initials(s: String) -> Result<String, String> {
-    Ok(join(
-        s.split_whitespace().map(|w| (&w[0..1]).to_owned()),
-        "",
-    ))
+    Ok(
+        s.split_whitespace()
+            .map(|w| (&w[0..1]).to_owned())
+            .collect(),
+    )
 }
 );
 
@@ -136,6 +141,40 @@ fn untitle(s: String) -> Result<String, String> {
     )
 }
 );
+
+gtmpl_fn!(
+#[doc = r#"Truncate a string (no suffix). `trunc 5 "Hello World"` yields "hello"."#]
+fn trunc(len: i64, s: String) -> Result<String, String> {
+    if len < 0 || (len as usize) > s.len() {
+        Ok(s)
+    } else {
+        Ok((&s[..(len as usize)]).to_string())
+    }
+}
+);
+
+/// Golang's strings.Join, but as `join SEP SLICE`
+pub fn join(args: &[Arc<Any>]) -> Result<Arc<Any>, String> {
+    if args.len() != 2 {
+        return Err(String::from("two arguments required"));
+    }
+    let arg0 = args[0].downcast_ref::<Value>().ok_or_else(|| {
+        "unable to downcast".to_owned()
+    })?;
+    let sep: String = from_value(arg0).ok_or_else(
+        || "unable to convert from Value".to_owned(),
+    )?;
+    let arg1 = args[1].downcast_ref::<Value>().ok_or_else(|| {
+        "unable to downcast".to_owned()
+    })?;
+    if let &Value::Array(ref list) = arg1 {
+        Ok(Arc::new(Value::from(
+            itertools::join(list.iter().map(|v| v.to_string()), &sep),
+        )))
+    } else {
+        return Err(String::from("second argument must be of type Array"));
+    }
+}
 
 gtmpl_fn!(
 #[doc = r#"Golang's strings.Split, but as `split SEP STRING`. The results are returned
@@ -283,6 +322,16 @@ mod test {
         test_fn!(untitle, vvarc!("Foo Bar"), "foo bar");
         test_fn!(untitle, vvarc!("FOO BAR"), "fOO bAR");
         test_fn!(untitle, vvarc!("  F  B  "), "  f  b  ");
+    }
+
+    #[test]
+    fn test_trunc() {
+        test_fn!(trunc, vvarc!(5, "foobar"), "fooba");
+    }
+
+    #[test]
+    fn test_join() {
+        test_fn!(join, vvarc!("_", vec!["hello", "world"]), "hello_world");
     }
 
     #[test]
