@@ -143,6 +143,18 @@ fn untitle(s: String) -> Result<String, String> {
 );
 
 gtmpl_fn!(
+fn replace(old: String, new: String, s: String) -> Result<String, String> {
+    Ok(s.replace(&old, &new))
+}
+);
+
+gtmpl_fn!(
+fn plural(one: String, many: String, count: i64) -> Result<String, String> {
+    Ok(if count == 1 { one } else { many })
+}
+);
+
+gtmpl_fn!(
 #[doc = r#"Truncate a string (no suffix). `trunc 5 "Hello World"` yields "hello"."#]
 fn trunc(len: i64, s: String) -> Result<String, String> {
     if len < 0 || (len as usize) > s.len() {
@@ -167,7 +179,7 @@ pub fn join(args: &[Arc<Any>]) -> Result<Arc<Any>, String> {
     let arg1 = args[1].downcast_ref::<Value>().ok_or_else(|| {
         "unable to downcast".to_owned()
     })?;
-    if let &Value::Array(ref list) = arg1 {
+    if let Value::Array(ref list) = *arg1 {
         Ok(Arc::new(Value::from(
             itertools::join(list.iter().map(|v| v.to_string()), &sep),
         )))
@@ -322,6 +334,19 @@ mod test {
         test_fn!(untitle, vvarc!("Foo Bar"), "foo bar");
         test_fn!(untitle, vvarc!("FOO BAR"), "fOO bAR");
         test_fn!(untitle, vvarc!("  F  B  "), "  f  b  ");
+    }
+
+    #[test]
+    fn test_replace() {
+        test_fn!(replace,
+                 vvarc!("World", "Doom", "Hello World!"),
+                 "Hello Doom!");
+    }
+
+    #[test]
+    fn test_plural() {
+        test_fn!(plural, vvarc!("mouse", "mice", 1), "mouse");
+        test_fn!(plural, vvarc!("mouse", "mice", 10), "mice");
     }
 
     #[test]
