@@ -215,6 +215,58 @@ fn substring(start: i64, len: i64, s: String) -> Result<String, String> {
 }
 );
 
+gtmpl_fn!(
+#[doc=r#"Golang's strings.TrimSpace"#]
+fn trim(s: String) -> Result<String, String> {
+    Ok(s.trim().to_owned())
+}
+);
+
+gtmpl_fn!(
+#[doc=r#"Golang's strings.Trim, but with the argument order reversed
+`trimAll "$" "$5.00"` or `"$5.00 | trimAll "$""#]
+fn trim_all(substr: String, s: String) -> Result<String, String> {
+    let x: &[_] = &substr.chars().collect::<Vec<_>>();
+    Ok(s.trim_matches(x).to_owned())
+}
+);
+
+gtmpl_fn!(
+#[doc=r#"Golang's strings.TrimSuffix, but with the argument order reversed:
+`trimSuffix "-" "ends-with-"`"#]
+fn trim_suffix(substr: String, s: String) -> Result<String, String> {
+    Ok(s.trim_right_matches(&substr).to_owned())
+}
+);
+
+gtmpl_fn!(
+#[doc=r#"Golang's strings.TrimPrefix, but with the argument order reversed `trimPrefix "$" "$5"`"#]
+fn trim_prefix(substr: String, s: String) -> Result<String, String> {
+    Ok(s.trim_left_matches(&substr).to_owned())
+}
+);
+
+gtmpl_fn!(
+#[doc=r#"Golang's strings.Contains, but with the arguments switched: `contains substr str`."#]
+fn contains(substr: String, s: String) -> Result<bool, String> {
+    Ok(s.contains(&substr))
+}
+);
+
+gtmpl_fn!(
+#[doc=r#"Golang's strings.hasSuffix, but with the arguments switched"#]
+fn has_suffix(substr: String, s: String) -> Result<bool, String> {
+    Ok(s.ends_with(&substr))
+}
+);
+
+gtmpl_fn!(
+#[doc=r#"Golang's strings.hasPrefix, but with the arguments switched"#]
+fn has_prefix(substr: String, s: String) -> Result<bool, String> {
+    Ok(s.starts_with(&substr))
+}
+);
+
 #[cfg(test)]
 mod test {
     use super::*;
@@ -373,5 +425,40 @@ mod test {
         test_fn!(substring, vvarc!(1, 5, "foobar"), "ooba");
         test_fn!(substring, vvarc!(3, 2, "foobar"), "foobar");
         test_fn!(substring, vvarc!(8, 9, "foobar"), "foobar");
+    }
+
+    #[test]
+    fn test_contains() {
+        test_fn!(contains, vvarc!("oo", "foobar"), true);
+    }
+
+    #[test]
+    fn test_has_suffix() {
+        test_fn!(has_suffix, vvarc!("bar", "foobar"), true);
+    }
+
+    #[test]
+    fn test_has_prefix() {
+        test_fn!(has_prefix, vvarc!("foo", "foobar"), true);
+    }
+
+    #[test]
+    fn test_trim() {
+        test_fn!(trim, vvarc!("  foobar "), "foobar");
+    }
+
+    #[test]
+    fn test_trim_all() {
+        test_fn!(trim_all, vvarc!(" fr", "  foobar "), "ooba");
+    }
+
+    #[test]
+    fn test_trim_suffix() {
+        test_fn!(trim_suffix, vvarc!("bar", "foobar"), "foo");
+    }
+
+    #[test]
+    fn test_trim_prefix() {
+        test_fn!(trim_prefix, vvarc!("foo", "foobar"), "bar");
     }
 }
