@@ -84,6 +84,20 @@ fn abbrevboth(left: i64, right: i64, s: String) -> Result<String, String> {
 );
 
 gtmpl_fn!(
+#[doc = r#"Golang's strings.ToUpper"#]
+fn upper(s: String) -> Result<String, String> {
+    Ok(s.to_uppercase())
+}
+);
+
+gtmpl_fn!(
+#[doc = r#"Golang's strings.ToLower"#]
+fn lower(s: String) -> Result<String, String> {
+    Ok(s.to_lowercase())
+}
+);
+
+gtmpl_fn!(
 #[doc = r#"Given a multi-word string, return the initials. `initials "Matt Butcher"` returns "MB""#]
 fn initials(s: String) -> Result<String, String> {
     Ok(
@@ -343,6 +357,16 @@ mod test {
         test_fn!(abbrevboth, vvarc!(4, 7, "foobarfoobar"), "foob...");
         test_fn!(abbrevboth, vvarc!(6, 9, "foobarfoobar"), "...foobar");
         test_fn!(abbrevboth, vvarc!(5, 7, "foobar"), "foobar");
+    }
+
+    #[test]
+    fn test_upper() {
+        test_fn!(upper, vvarc!("foobar"), "FOOBAR");
+    }
+
+    #[test]
+    fn test_lower() {
+        test_fn!(lower, vvarc!("FOOBAR"), "foobar");
     }
 
     #[test]
