@@ -414,9 +414,11 @@ mod test {
 
     #[test]
     fn test_replace() {
-        test_fn!(replace,
-                 vvarc!("World", "Doom", "Hello World!"),
-                 "Hello Doom!");
+        test_fn!(
+            replace,
+            vvarc!("World", "Doom", "Hello World!"),
+            "Hello Doom!"
+        );
     }
 
     #[test]
