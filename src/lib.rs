@@ -11,6 +11,7 @@ mod defaults;
 
 use gtmpl::Func;
 
+/// SPRIG functions.
 pub static SPRIG: &[(&'static str, Func)] = &[
     // strings
     ("base64encode", strings::base64encode as Func),

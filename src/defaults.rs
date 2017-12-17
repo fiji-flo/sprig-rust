@@ -31,8 +31,7 @@ fn is_empty(val: &Value) -> bool {
         Value::Array(ref a) => a.is_empty(),
         Value::Bool(ref b) => !b,
         Value::Function(_) => false,
-        Value::Nil => true,
-        Value::NoValue => true,
+        Value::Nil | Value::NoValue => true,
         Value::Object(ref o) | Value::Map(ref o) => o.is_empty(),
         Value::Number(ref n) => {
             if let Some(u) = n.as_u64() {
