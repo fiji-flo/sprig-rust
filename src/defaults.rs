@@ -14,9 +14,9 @@ pub fn default(args: &[Arc<Any>]) -> Result<Arc<Any>, String> {
         return Err(String::from("two arguments required"));
     }
 
-    let arg1 = args[1].downcast_ref::<Value>().ok_or_else(|| {
-        "unable to downcast FOO".to_owned()
-    })?;
+    let arg1 = args[1]
+        .downcast_ref::<Value>()
+        .ok_or_else(|| "unable to downcast FOO".to_owned())?;
 
     if is_empty(arg1) {
         Ok(Arc::clone(&args[0]))
@@ -33,8 +33,7 @@ fn is_empty(val: &Value) -> bool {
         Value::Function(_) => false,
         Value::Nil => true,
         Value::NoValue => true,
-        Value::Object(ref o) |
-        Value::Map(ref o) => o.is_empty(),
+        Value::Object(ref o) | Value::Map(ref o) => o.is_empty(),
         Value::Number(ref n) => {
             if let Some(u) = n.as_u64() {
                 u == 0

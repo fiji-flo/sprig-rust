@@ -184,19 +184,18 @@ pub fn join(args: &[Arc<Any>]) -> Result<Arc<Any>, String> {
     if args.len() != 2 {
         return Err(String::from("two arguments required"));
     }
-    let arg0 = args[0].downcast_ref::<Value>().ok_or_else(|| {
-        "unable to downcast".to_owned()
-    })?;
-    let sep: String = from_value(arg0).ok_or_else(
-        || "unable to convert from Value".to_owned(),
-    )?;
-    let arg1 = args[1].downcast_ref::<Value>().ok_or_else(|| {
-        "unable to downcast".to_owned()
-    })?;
+    let arg0 = args[0]
+        .downcast_ref::<Value>()
+        .ok_or_else(|| "unable to downcast".to_owned())?;
+    let sep: String = from_value(arg0).ok_or_else(|| "unable to convert from Value".to_owned())?;
+    let arg1 = args[1]
+        .downcast_ref::<Value>()
+        .ok_or_else(|| "unable to downcast".to_owned())?;
     if let Value::Array(ref list) = *arg1 {
-        Ok(Arc::new(Value::from(
-            itertools::join(list.iter().map(|v| v.to_string()), &sep),
-        )))
+        Ok(Arc::new(Value::from(itertools::join(
+            list.iter().map(|v| v.to_string()),
+            &sep,
+        ))))
     } else {
         return Err(String::from("second argument must be of type Array"));
     }
