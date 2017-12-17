@@ -1,0 +1,15 @@
+sudo: false
+language: rust
+cache: cargo
+
+rust:
+  - stable
+  - nightly
+  - beta
+
+matrix:
+  include:
+    - rust: nightly
+      env: NIGHTLY=true
+
+script: ./travis.sh
