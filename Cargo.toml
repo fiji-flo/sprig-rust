@@ -7,15 +7,12 @@ license = "MIT"
 repository = "https://github.com/fiji-flo/sprig-rust"
 documentation = "https://docs.rs/crate/sprig"
 keywords = ["golang", "template", "templating", "sprig"]
-category = ["template-engine"]
 readme = "README.md"
 include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 
 [dependencies]
-gtmpl = { path = "../gtmpl-rust" }
-#gtmpl = { git = "https://github.com/fiji-flo/gtmpl-rust" }
-gtmpl_value = "0.1.0"
-lazy_static = "0.2"
+gtmpl = "0.3"
+gtmpl_value = "0.2"
 data-encoding = "2.0.0"
 itertools = "0.7.2"
 rand = "0.3"

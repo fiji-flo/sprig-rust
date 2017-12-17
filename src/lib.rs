@@ -1,25 +1,46 @@
+extern crate data_encoding;
 #[macro_use]
 extern crate gtmpl;
 extern crate gtmpl_value;
-#[macro_use]
-extern crate lazy_static;
-extern crate data_encoding;
 extern crate itertools;
 extern crate rand;
 
 mod utils;
 mod strings;
-
+mod defaults;
 
 use gtmpl::Func;
 
-use std::collections::HashMap;
-
-lazy_static! {
-    /// Map of all builtin function.
-    pub static ref SPRIG: HashMap<String, Func> = {
-        let mut m = HashMap::new();
-        m.insert("split".to_owned(), strings::split as Func);
-        m
-    };
-}
+/// SPRIG functions.
+pub static SPRIG: &[(&'static str, Func)] = &[
+    // strings
+    ("base64encode", strings::base64encode as Func),
+    ("base64decode", strings::base64decode as Func),
+    ("base32encode", strings::base32encode as Func),
+    ("base32decode", strings::base32decode as Func),
+    ("abbrev", strings::abbrev as Func),
+    ("abbrevboth", strings::abbrevboth as Func),
+    ("upper", strings::upper as Func),
+    ("lower", strings::lower as Func),
+    ("initials", strings::initials as Func),
+    ("randAlphaNumeric", strings::rand_alpha_numeric as Func),
+    ("randAlpha", strings::rand_alpha as Func),
+    ("randAscii", strings::rand_ascii as Func),
+    ("randNumeric", strings::rand_numeric as Func),
+    ("untitle", strings::untitle as Func),
+    ("replace", strings::replace as Func),
+    ("plural", strings::plural as Func),
+    ("trunc", strings::trunc as Func),
+    ("join", strings::join as Func),
+    ("split", strings::split as Func),
+    ("substring", strings::substring as Func),
+    ("trim", strings::trim as Func),
+    ("trimAll", strings::trim_all as Func),
+    ("trimSuffix", strings::trim_suffix as Func),
+    ("trimPrefix", strings::trim_prefix as Func),
+    ("contains", strings::contains as Func),
+    ("hasSuffix", strings::has_suffix as Func),
+    ("hasPrefix", strings::has_prefix as Func),
+    // defaults
+    ("default", defaults::default as Func),
+];
