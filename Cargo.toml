@@ -13,6 +13,6 @@ include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 [dependencies]
 gtmpl = "0.3"
 gtmpl_value = "0.2"
-data-encoding = "2.0.0"
-itertools = "0.7.2"
-rand = "0.3"
+data-encoding = "2.0"
+itertools = "0.7"
+rand = "0.4"
