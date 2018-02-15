@@ -1,6 +1,3 @@
-use std::any::Any;
-use std::sync::Arc;
-
 use gtmpl_value::Value;
 
 /// Give a default value. Used like this: trim "   "| default "empty".
@@ -9,19 +6,15 @@ use gtmpl_value::Value;
 /// For numbers, the value 0 will trigger the default. For booleans, false will
 /// trigger the default. For structs, the default is never returned (there is
 /// no clear empty condition). For everything else, nil value triggers a default.
-pub fn default(args: &[Arc<Any>]) -> Result<Arc<Any>, String> {
+pub fn default(args: &[Value]) -> Result<Value, String> {
     if args.len() != 2 {
         return Err(String::from("two arguments required"));
     }
 
-    let arg1 = args[1]
-        .downcast_ref::<Value>()
-        .ok_or_else(|| "unable to downcast FOO".to_owned())?;
-
-    if is_empty(arg1) {
-        Ok(Arc::clone(&args[0]))
+    if is_empty(&args[1]) {
+        Ok(args[0].clone())
     } else {
-        Ok(Arc::clone(&args[1]))
+        Ok(args[1].clone())
     }
 }
 
@@ -46,30 +39,27 @@ fn is_empty(val: &Value) -> bool {
 #[cfg(test)]
 mod test {
     use super::*;
-    use std::any::Any;
-    use std::sync::Arc;
     use gtmpl_value::Value;
 
-    macro_rules! varc(
-        ($x:expr) => { { let v: Arc<Any> = Arc::new(Value::from($x)); v } }
+    macro_rules! val(
+        ($x:expr) => { { let v = Value::from($x); v } }
     );
 
-    macro_rules! vvarc(
-        ($($x:expr),*) => { { let v: Vec<Arc<Any>> = vec![$(varc!($x)),*]; v } }
+    macro_rules! vval(
+        ($($x:expr),*) => { { let v: Vec<Value> = vec![$(val!($x)),*]; v } }
     );
 
     macro_rules! test_fn(
         ($func:ident, $args:expr, $exp:expr) => {
             let v = $args;
-            let ret = $func(&v).unwrap();
-            let ret_ = ret.downcast_ref::<Value>();
+            let ret = $func(&v);
             let expected = $exp;
-            assert_eq!(ret_, Some(&Value::from(expected)));
+            assert_eq!(ret, Ok(Value::from(expected)));
         }
     );
 
     #[test]
     fn test_default() {
-        test_fn!(default, vvarc!("foo", ""), "foo");
+        test_fn!(default, vval!("foo", ""), "foo");
     }
 }

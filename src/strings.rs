@@ -1,8 +1,6 @@
-use std::any::Any;
 use std::cmp;
 use std::collections::HashMap;
 use std::str;
-use std::sync::Arc;
 
 use itertools;
 use data_encoding::{BASE32, BASE64};
@@ -180,22 +178,17 @@ fn trunc(len: i64, s: String) -> Result<String, String> {
 );
 
 /// Golang's strings.Join, but as `join SEP SLICE`
-pub fn join(args: &[Arc<Any>]) -> Result<Arc<Any>, String> {
+pub fn join(args: &[Value]) -> Result<Value, String> {
     if args.len() != 2 {
         return Err(String::from("two arguments required"));
     }
-    let arg0 = args[0]
-        .downcast_ref::<Value>()
-        .ok_or_else(|| "unable to downcast".to_owned())?;
-    let sep: String = from_value(arg0).ok_or_else(|| "unable to convert from Value".to_owned())?;
-    let arg1 = args[1]
-        .downcast_ref::<Value>()
-        .ok_or_else(|| "unable to downcast".to_owned())?;
-    if let Value::Array(ref list) = *arg1 {
-        Ok(Arc::new(Value::from(itertools::join(
+    let sep: String =
+        from_value(&args[0]).ok_or_else(|| "unable to convert from Value".to_owned())?;
+    if let Value::Array(ref list) = args[1] {
+        Ok(Value::from(itertools::join(
             list.iter().map(|v| v.to_string()),
             &sep,
-        ))))
+        )))
     } else {
         return Err(String::from("second argument must be of type Array"));
     }
@@ -283,24 +276,21 @@ fn has_prefix(substr: String, s: String) -> Result<bool, String> {
 #[cfg(test)]
 mod test {
     use super::*;
-    use std::any::Any;
-    use std::sync::Arc;
     use gtmpl_value::Value;
 
-    macro_rules! varc(
-        ($x:expr) => { { let v: Arc<Any> = Arc::new(Value::from($x)); v } }
+    macro_rules! val(
+        ($x:expr) => { { Value::from($x) } }
     );
 
-    macro_rules! vvarc(
-        ($($x:expr),*) => { { let v: Vec<Arc<Any>> = vec![$(varc!($x)),*]; v } }
+    macro_rules! vval(
+        ($($x:expr),*) => { { vec![$(val!($x)),*] } }
     );
 
     macro_rules! test_fn_assert(
         ($func:ident, $args:expr, $typ:ident, $ass:ident) => {
             let v = $args;
-            let ret = $func(&v).unwrap();
-            let ret_ = ret.downcast_ref::<Value>();
-            if let Some(&Value::$typ(ref x)) = ret_ {
+            let ret = $func(&v);
+            if let Ok(Value::$typ(ref x)) = ret {
                 return assert!($ass(x));
             }
             assert!(false);
@@ -310,28 +300,27 @@ mod test {
     macro_rules! test_fn(
         ($func:ident, $args:expr, $exp:expr) => {
             let v = $args;
-            let ret = $func(&v).unwrap();
-            let ret_ = ret.downcast_ref::<Value>();
+            let ret = $func(&v);
             let expected = $exp;
-            assert_eq!(ret_, Some(&Value::from(expected)));
+            assert_eq!(ret, Ok(Value::from(expected)));
         }
     );
 
     #[test]
     fn test_base64encode() {
-        test_fn!(base64encode, vvarc!("Hello World!"), "SGVsbG8gV29ybGQh");
+        test_fn!(base64encode, vval!("Hello World!"), "SGVsbG8gV29ybGQh");
     }
 
     #[test]
     fn test_base64decode() {
-        test_fn!(base64decode, vvarc!("SGVsbG8gV29ybGQh"), "Hello World!");
+        test_fn!(base64decode, vval!("SGVsbG8gV29ybGQh"), "Hello World!");
     }
 
     #[test]
     fn test_base32encode() {
         test_fn!(
             base32encode,
-            vvarc!("Hello World!"),
+            vval!("Hello World!"),
             "JBSWY3DPEBLW64TMMQQQ===="
         );
     }
@@ -340,57 +329,57 @@ mod test {
     fn test_base32decode() {
         test_fn!(
             base32decode,
-            vvarc!("JBSWY3DPEBLW64TMMQQQ===="),
+            vval!("JBSWY3DPEBLW64TMMQQQ===="),
             "Hello World!"
         );
     }
 
     #[test]
     fn test_abbrv() {
-        test_fn!(abbrev, vvarc!(4, "foobar"), "f...");
+        test_fn!(abbrev, vval!(4, "foobar"), "f...");
     }
 
     #[test]
     fn test_abbrvboth() {
-        test_fn!(abbrevboth, vvarc!(5, 7, "foobarfoobar"), "...r...");
-        test_fn!(abbrevboth, vvarc!(4, 7, "foobarfoobar"), "foob...");
-        test_fn!(abbrevboth, vvarc!(6, 9, "foobarfoobar"), "...foobar");
-        test_fn!(abbrevboth, vvarc!(5, 7, "foobar"), "foobar");
+        test_fn!(abbrevboth, vval!(5, 7, "foobarfoobar"), "...r...");
+        test_fn!(abbrevboth, vval!(4, 7, "foobarfoobar"), "foob...");
+        test_fn!(abbrevboth, vval!(6, 9, "foobarfoobar"), "...foobar");
+        test_fn!(abbrevboth, vval!(5, 7, "foobar"), "foobar");
     }
 
     #[test]
     fn test_upper() {
-        test_fn!(upper, vvarc!("foobar"), "FOOBAR");
+        test_fn!(upper, vval!("foobar"), "FOOBAR");
     }
 
     #[test]
     fn test_lower() {
-        test_fn!(lower, vvarc!("FOOBAR"), "foobar");
+        test_fn!(lower, vval!("FOOBAR"), "foobar");
     }
 
     #[test]
     fn test_initials() {
-        test_fn!(initials, vvarc!(""), "");
-        test_fn!(initials, vvarc!(" "), "");
-        test_fn!(initials, vvarc!("Foo Bar"), "FB");
+        test_fn!(initials, vval!(""), "");
+        test_fn!(initials, vval!(" "), "");
+        test_fn!(initials, vval!("Foo Bar"), "FB");
     }
 
     #[test]
     fn test_rand_alpha_numeric() {
         let check = |x: &String| x.chars().count() == 20;
-        test_fn_assert!(rand_alpha_numeric, vvarc!(20), String, check);
+        test_fn_assert!(rand_alpha_numeric, vval!(20), String, check);
     }
 
     #[test]
     fn test_rand_alpha() {
         let check = |x: &String| x.len() == 20;
-        test_fn_assert!(rand_alpha, vvarc!(20), String, check);
+        test_fn_assert!(rand_alpha, vval!(20), String, check);
     }
 
     #[test]
     fn test_rand_ascii() {
         let check = |x: &String| x.len() == 20;
-        test_fn_assert!(rand_ascii, vvarc!(20), String, check);
+        test_fn_assert!(rand_ascii, vval!(20), String, check);
     }
 
     #[test]
@@ -399,41 +388,41 @@ mod test {
             let i = x.parse::<i64>();
             x.len() == 10 && i.is_ok()
         };
-        test_fn_assert!(rand_numeric, vvarc!(10), String, check);
+        test_fn_assert!(rand_numeric, vval!(10), String, check);
     }
 
     #[test]
     fn test_untitle() {
-        test_fn!(untitle, vvarc!(""), "");
-        test_fn!(untitle, vvarc!(" "), " ");
-        test_fn!(untitle, vvarc!("Foo Bar"), "foo bar");
-        test_fn!(untitle, vvarc!("FOO BAR"), "fOO bAR");
-        test_fn!(untitle, vvarc!("  F  B  "), "  f  b  ");
+        test_fn!(untitle, vval!(""), "");
+        test_fn!(untitle, vval!(" "), " ");
+        test_fn!(untitle, vval!("Foo Bar"), "foo bar");
+        test_fn!(untitle, vval!("FOO BAR"), "fOO bAR");
+        test_fn!(untitle, vval!("  F  B  "), "  f  b  ");
     }
 
     #[test]
     fn test_replace() {
         test_fn!(
             replace,
-            vvarc!("World", "Doom", "Hello World!"),
+            vval!("World", "Doom", "Hello World!"),
             "Hello Doom!"
         );
     }
 
     #[test]
     fn test_plural() {
-        test_fn!(plural, vvarc!("mouse", "mice", 1), "mouse");
-        test_fn!(plural, vvarc!("mouse", "mice", 10), "mice");
+        test_fn!(plural, vval!("mouse", "mice", 1), "mouse");
+        test_fn!(plural, vval!("mouse", "mice", 10), "mice");
     }
 
     #[test]
     fn test_trunc() {
-        test_fn!(trunc, vvarc!(5, "foobar"), "fooba");
+        test_fn!(trunc, vval!(5, "foobar"), "fooba");
     }
 
     #[test]
     fn test_join() {
-        test_fn!(join, vvarc!("_", vec!["hello", "world"]), "hello_world");
+        test_fn!(join, vval!("_", vec!["hello", "world"]), "hello_world");
     }
 
     #[test]
@@ -441,49 +430,49 @@ mod test {
         let mut m = HashMap::new();
         m.insert("_0".to_owned(), "foo".to_owned());
         m.insert("_1".to_owned(), "bar".to_owned());
-        test_fn!(split, vvarc!(" ", "foo bar"), m);
+        test_fn!(split, vval!(" ", "foo bar"), m);
     }
 
     #[test]
     fn test_substring() {
-        test_fn!(substring, vvarc!(0, 0, ""), "");
-        test_fn!(substring, vvarc!(1, 5, "foobar"), "ooba");
-        test_fn!(substring, vvarc!(3, 2, "foobar"), "foobar");
-        test_fn!(substring, vvarc!(8, 9, "foobar"), "foobar");
+        test_fn!(substring, vval!(0, 0, ""), "");
+        test_fn!(substring, vval!(1, 5, "foobar"), "ooba");
+        test_fn!(substring, vval!(3, 2, "foobar"), "foobar");
+        test_fn!(substring, vval!(8, 9, "foobar"), "foobar");
     }
 
     #[test]
     fn test_contains() {
-        test_fn!(contains, vvarc!("oo", "foobar"), true);
+        test_fn!(contains, vval!("oo", "foobar"), true);
     }
 
     #[test]
     fn test_has_suffix() {
-        test_fn!(has_suffix, vvarc!("bar", "foobar"), true);
+        test_fn!(has_suffix, vval!("bar", "foobar"), true);
     }
 
     #[test]
     fn test_has_prefix() {
-        test_fn!(has_prefix, vvarc!("foo", "foobar"), true);
+        test_fn!(has_prefix, vval!("foo", "foobar"), true);
     }
 
     #[test]
     fn test_trim() {
-        test_fn!(trim, vvarc!("  foobar "), "foobar");
+        test_fn!(trim, vval!("  foobar "), "foobar");
     }
 
     #[test]
     fn test_trim_all() {
-        test_fn!(trim_all, vvarc!(" fr", "  foobar "), "ooba");
+        test_fn!(trim_all, vval!(" fr", "  foobar "), "ooba");
     }
 
     #[test]
     fn test_trim_suffix() {
-        test_fn!(trim_suffix, vvarc!("bar", "foobar"), "foo");
+        test_fn!(trim_suffix, vval!("bar", "foobar"), "foo");
     }
 
     #[test]
     fn test_trim_prefix() {
-        test_fn!(trim_prefix, vvarc!("foo", "foobar"), "bar");
+        test_fn!(trim_prefix, vval!("foo", "foobar"), "bar");
     }
 }
