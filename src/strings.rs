@@ -1,5 +1,6 @@
 use std::cmp;
 use std::collections::HashMap;
+use std::iter;
 use std::str;
 
 use itertools;
@@ -211,12 +212,12 @@ fn split(sep: String, orig: String) -> Result<HashMap<String, String>, String> {
 gtmpl_fn!(
 #[doc = r#"Given string, start, and length, return a substr."#]
 fn substring(start: i64, len: i64, s: String) -> Result<String, String> {
-    let start = if start < 0 { 0 } else { start as usize };
-    let len = if len < 0 { s.len() } else { len as usize };
-    if start > len || start > s.len() || len > s.len() {
+    let from = if start < 0 { 0 } else { start as usize };
+    let to = if len < 0 { s.len() } else { len as usize };
+    if from > to || from > s.len() || to > s.len() {
         Ok(s)
     } else {
-        Ok(s[start..len].to_string())
+        Ok(s[from..to].to_string())
     }
 }
 );
@@ -273,6 +274,20 @@ fn has_prefix(substr: String, s: String) -> Result<bool, String> {
 }
 );
 
+gtmpl_fn!(
+#[doc=r#"Remove all space characters from a string. nospace "h e l l o" becomes "hello""#]
+fn nospace(s: String) -> Result<String, String> {
+    Ok(s.replace(' ', ""))
+}
+);
+
+gtmpl_fn!(
+#[doc=r#"strings.Repeat, but with the arguments switched: repeat count str.
+(This simplifies common pipelines)"#]
+fn repeat(count: u64, s: String) -> Result<String, String> {
+    Ok(itertools::join(iter::repeat(s).take(count as usize), ""))
+}
+);
 #[cfg(test)]
 mod test {
     use super::*;
@@ -474,5 +489,15 @@ mod test {
     #[test]
     fn test_trim_prefix() {
         test_fn!(trim_prefix, vval!("foo", "foobar"), "bar");
+    }
+
+    #[test]
+    fn test_nospace() {
+        test_fn!(nospace, vval!("h e l l o"), "hello");
+    }
+
+    #[test]
+    fn test_repeat() {
+        test_fn!(repeat, vval!(4, "four"), "fourfourfourfour");
     }
 }

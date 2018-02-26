@@ -41,6 +41,8 @@ pub static SPRIG: &[(&'static str, Func)] = &[
     ("contains", strings::contains as Func),
     ("hasSuffix", strings::has_suffix as Func),
     ("hasPrefix", strings::has_prefix as Func),
+    ("nospace", strings::nospace as Func),
+    ("repeat", strings::repeat as Func),
     // defaults
     ("default", defaults::default as Func),
 ];
