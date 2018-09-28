@@ -5,9 +5,11 @@ extern crate gtmpl_value;
 extern crate itertools;
 extern crate rand;
 
+#[macro_use]
 mod utils;
-mod strings;
 mod defaults;
+mod strings;
+mod time;
 
 use gtmpl::Func;
 

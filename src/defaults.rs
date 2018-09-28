@@ -41,23 +41,6 @@ mod test {
     use super::*;
     use gtmpl_value::Value;
 
-    macro_rules! val(
-        ($x:expr) => { { let v = Value::from($x); v } }
-    );
-
-    macro_rules! vval(
-        ($($x:expr),*) => { { let v: Vec<Value> = vec![$(val!($x)),*]; v } }
-    );
-
-    macro_rules! test_fn(
-        ($func:ident, $args:expr, $exp:expr) => {
-            let v = $args;
-            let ret = $func(&v);
-            let expected = $exp;
-            assert_eq!(ret, Ok(Value::from(expected)));
-        }
-    );
-
     #[test]
     fn test_default() {
         test_fn!(default, vval!("foo", ""), "foo");
