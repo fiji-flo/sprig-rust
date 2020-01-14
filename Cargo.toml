@@ -1,6 +1,6 @@
 [package]
 name = "sprig"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["Florian Merz <flomerz@gmail.com>"]
 description = "Template functions for Go templates for Rust"
 license = "MIT"
@@ -14,5 +14,5 @@ include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 gtmpl = "0.5"
 gtmpl_value = "0.3"
 data-encoding = "2.0"
-itertools = "0.7"
-rand = "0.5"
+itertools = "0.8"
+rand = "0.7"

@@ -10,39 +10,47 @@ use gtmpl_value::{from_value, Value};
 
 use utils;
 
-gtmpl_fn!(#[doc = r#"Base 64 encode a string."#]
-fn base64encode(s: String) -> Result<String, String> {
-    Ok(BASE64.encode(&s.into_bytes()))
-});
+gtmpl_fn!(
+    #[doc = r#"Base 64 encode a string."#]
+    fn base64encode(s: String) -> Result<String, String> {
+        Ok(BASE64.encode(&s.into_bytes()))
+    }
+);
 
-gtmpl_fn!(#[doc = r#"Base 64 decode a string."#]
-fn base64decode(s: String) -> Result<String, String> {
-    BASE64
-        .decode(&s.into_bytes())
-        .map_err(|e| format!("unable to decode {}", e))
-        .and_then(|v| {
-            str::from_utf8(&v)
-                .map_err(|e| format!("unable to decode: {}", e))
-                .map(|s| s.to_owned())
-        })
-});
+gtmpl_fn!(
+    #[doc = r#"Base 64 decode a string."#]
+    fn base64decode(s: String) -> Result<String, String> {
+        BASE64
+            .decode(&s.into_bytes())
+            .map_err(|e| format!("unable to decode {}", e))
+            .and_then(|v| {
+                str::from_utf8(&v)
+                    .map_err(|e| format!("unable to decode: {}", e))
+                    .map(|s| s.to_owned())
+            })
+    }
+);
 
-gtmpl_fn!(#[doc = r#"Base 32 encode a string."#]
-fn base32encode(s: String) -> Result<String, String> {
-    Ok(BASE32.encode(&s.into_bytes()))
-});
+gtmpl_fn!(
+    #[doc = r#"Base 32 encode a string."#]
+    fn base32encode(s: String) -> Result<String, String> {
+        Ok(BASE32.encode(&s.into_bytes()))
+    }
+);
 
-gtmpl_fn!(#[doc = r#"Base 32 decode a string."#]
-fn base32decode(s: String) -> Result<String, String> {
-    BASE32
-        .decode(&s.into_bytes())
-        .map_err(|e| format!("unable to decode {}", e))
-        .and_then(|v| {
-            str::from_utf8(&v)
-                .map_err(|e| format!("unable to decode: {}", e))
-                .map(|s| s.to_owned())
-        })
-});
+gtmpl_fn!(
+    #[doc = r#"Base 32 decode a string."#]
+    fn base32decode(s: String) -> Result<String, String> {
+        BASE32
+            .decode(&s.into_bytes())
+            .map_err(|e| format!("unable to decode {}", e))
+            .and_then(|v| {
+                str::from_utf8(&v)
+                    .map_err(|e| format!("unable to decode: {}", e))
+                    .map(|s| s.to_owned())
+            })
+    }
+);
 
 gtmpl_fn!(
     #[doc = r#"Truncate a string with ellipses. `abbrev 5 "hello world"` yields "he...""#]
@@ -74,15 +82,19 @@ gtmpl_fn!(
     }
 );
 
-gtmpl_fn!(#[doc = r#"Golang's strings.ToUpper"#]
-fn upper(s: String) -> Result<String, String> {
-    Ok(s.to_uppercase())
-});
+gtmpl_fn!(
+    #[doc = r#"Golang's strings.ToUpper"#]
+    fn upper(s: String) -> Result<String, String> {
+        Ok(s.to_uppercase())
+    }
+);
 
-gtmpl_fn!(#[doc = r#"Golang's strings.ToLower"#]
-fn lower(s: String) -> Result<String, String> {
-    Ok(s.to_lowercase())
-});
+gtmpl_fn!(
+    #[doc = r#"Golang's strings.ToLower"#]
+    fn lower(s: String) -> Result<String, String> {
+        Ok(s.to_lowercase())
+    }
+);
 
 gtmpl_fn!(
     #[doc = r#"Given a multi-word string, return the initials. `initials "Matt Butcher"` returns "MB""#]
@@ -100,10 +112,12 @@ gtmpl_fn!(
     }
 );
 
-gtmpl_fn!(#[doc = r#"Given a length, generate an alphabetic string"#]
-fn rand_alpha(count: u64) -> Result<String, String> {
-    Ok(utils::random_alpha(count as usize))
-});
+gtmpl_fn!(
+    #[doc = r#"Given a length, generate an alphabetic string"#]
+    fn rand_alpha(count: u64) -> Result<String, String> {
+        Ok(utils::random_alpha(count as usize))
+    }
+);
 
 gtmpl_fn!(
     #[doc = r#"Given a length, generate a random ASCII string (symbols included)"#]
@@ -112,27 +126,32 @@ gtmpl_fn!(
     }
 );
 
-gtmpl_fn!(#[doc = r#"Given a length, generate a string of digits."#]
-fn rand_numeric(count: u64) -> Result<String, String> {
-    Ok(utils::random_numeric(count as usize))
-});
+gtmpl_fn!(
+    #[doc = r#"Given a length, generate a string of digits."#]
+    fn rand_numeric(count: u64) -> Result<String, String> {
+        Ok(utils::random_numeric(count as usize))
+    }
+);
 
-gtmpl_fn!(#[doc = r#"Remove title casing"#]
-fn untitle(s: String) -> Result<String, String> {
-    let mut ws = true;
-    Ok(s.chars()
-        .map(|c| {
-            if c.is_whitespace() {
-                ws = true;
-                c.to_string()
-            } else if ws {
-                ws = false;
-                c.to_lowercase().to_string()
-            } else {
-                c.to_string()
-            }
-        }).collect::<String>())
-});
+gtmpl_fn!(
+    #[doc = r#"Remove title casing"#]
+    fn untitle(s: String) -> Result<String, String> {
+        let mut ws = true;
+        Ok(s.chars()
+            .map(|c| {
+                if c.is_whitespace() {
+                    ws = true;
+                    c.to_string()
+                } else if ws {
+                    ws = false;
+                    c.to_lowercase().to_string()
+                } else {
+                    c.to_string()
+                }
+            })
+            .collect::<String>())
+    }
+);
 
 gtmpl_fn!(
     fn replace(old: String, new: String, s: String) -> Result<String, String> {
@@ -176,8 +195,8 @@ pub fn join(args: &[Value]) -> Result<Value, String> {
 
 gtmpl_fn!(
     #[doc = r#"Golang's strings.Split, but as `split SEP STRING`. The results are returned
-             as a map with the indexes set to _N, where N is an integer starting from 0.
-             Use it like this: `{{$v := "foo/bar/baz" | split "/"}}{{$v._0}}` (Prints `foo`)"#]
+               as a map with the indexes set to _N, where N is an integer starting from 0.
+               Use it like this: `{{$v := "foo/bar/baz" | split "/"}}{{$v._0}}` (Prints `foo`)"#]
     fn split(sep: String, orig: String) -> Result<HashMap<String, String>, String> {
         let m: HashMap<String, String> = orig
             .split(&sep)
@@ -201,14 +220,16 @@ gtmpl_fn!(
     }
 );
 
-gtmpl_fn!(#[doc = r#"Golang's strings.TrimSpace"#]
-fn trim(s: String) -> Result<String, String> {
-    Ok(s.trim().to_owned())
-});
+gtmpl_fn!(
+    #[doc = r#"Golang's strings.TrimSpace"#]
+    fn trim(s: String) -> Result<String, String> {
+        Ok(s.trim().to_owned())
+    }
+);
 
 gtmpl_fn!(
     #[doc = r#"Golang's strings.Trim, but with the argument order reversed
-`trimAll "$" "$5.00"` or `"$5.00 | trimAll "$""#]
+               `trimAll "$" "$5.00"` or `"$5.00 | trimAll "$""#]
     fn trim_all(substr: String, s: String) -> Result<String, String> {
         let x: &[_] = &substr.chars().collect::<Vec<_>>();
         Ok(s.trim_matches(x).to_owned())
@@ -217,16 +238,16 @@ gtmpl_fn!(
 
 gtmpl_fn!(
     #[doc = r#"Golang's strings.TrimSuffix, but with the argument order reversed:
-`trimSuffix "-" "ends-with-"`"#]
+               `trimSuffix "-" "ends-with-"`"#]
     fn trim_suffix(substr: String, s: String) -> Result<String, String> {
-        Ok(s.trim_right_matches(&substr).to_owned())
+        Ok(s.trim_end_matches(&substr).to_owned())
     }
 );
 
 gtmpl_fn!(
     #[doc = r#"Golang's strings.TrimPrefix, but with the argument order reversed `trimPrefix "$" "$5"`"#]
     fn trim_prefix(substr: String, s: String) -> Result<String, String> {
-        Ok(s.trim_left_matches(&substr).to_owned())
+        Ok(s.trim_start_matches(&substr).to_owned())
     }
 );
 
@@ -260,11 +281,35 @@ gtmpl_fn!(
 
 gtmpl_fn!(
     #[doc = r#"strings.Repeat, but with the arguments switched: repeat count str.
-(This simplifies common pipelines)"#]
+               (This simplifies common pipelines)"#]
     fn repeat(count: u64, s: String) -> Result<String, String> {
         Ok(itertools::join(iter::repeat(s).take(count as usize), ""))
     }
 );
+
+#[allow(dead_code)]
+fn indent_(spaces: u64, s: String) -> String {
+    let pad = " ".repeat(spaces as usize);
+    let line_pad = format!("\n{}", pad);
+    format!("{}{}", pad, s.replace('\n', &line_pad))
+}
+
+gtmpl_fn!(
+    #[doc = r#"Indent every line in a given string to the specified indent width.
+               This is useful when aligning multi-line strings."#]
+    fn indent(spaces: u64, s: String) -> Result<String, String> {
+        Ok(indent_(spaces, s))
+    }
+);
+
+gtmpl_fn!(
+    #[doc = r#"Same as the indent function, but prepends a new line to the beginning of
+               the string."#]
+    fn nindent(spaces: u64, s: String) -> Result<String, String> {
+        Ok(format!("\n{}", indent_(spaces, s)))
+    }
+);
+
 #[cfg(test)]
 mod test {
     use super::*;
@@ -448,5 +493,23 @@ mod test {
     #[test]
     fn test_repeat() {
         test_fn!(repeat, vval!(4, "four"), "fourfourfourfour");
+    }
+
+    #[test]
+    fn test_indent() {
+        test_fn!(
+            indent,
+            vval!(2, "line 1\nline 2\nline 3"),
+            "  line 1\n  line 2\n  line 3"
+        );
+    }
+
+    #[test]
+    fn test_nindent() {
+        test_fn!(
+            nindent,
+            vval!(2, "line 1\nline 2\nline 3"),
+            "\n  line 1\n  line 2\n  line 3"
+        );
     }
 }

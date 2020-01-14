@@ -6,10 +6,10 @@ extern crate itertools;
 extern crate rand;
 
 #[macro_use]
-mod utils;
-mod defaults;
-mod strings;
-mod time;
+pub mod utils;
+pub mod defaults;
+pub mod strings;
+pub mod time;
 
 use gtmpl::Func;
 
