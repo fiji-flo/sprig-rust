@@ -45,6 +45,8 @@ pub static SPRIG: &[(&'static str, Func)] = &[
     ("hasPrefix", strings::has_prefix as Func),
     ("nospace", strings::nospace as Func),
     ("repeat", strings::repeat as Func),
+    ("indent", strings::indent as Func),
+    ("nindent", strings::nindent as Func),
     // time
     ("now", time::now as Func),
     // defaults

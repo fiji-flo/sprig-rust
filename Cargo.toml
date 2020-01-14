@@ -1,6 +1,6 @@
 [package]
 name = "sprig"
-version = "0.1.2"
+version = "0.1.3"
 authors = ["Florian Merz <flomerz@gmail.com>"]
 description = "Template functions for Go templates for Rust"
 license = "MIT"
