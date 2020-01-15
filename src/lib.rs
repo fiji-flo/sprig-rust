@@ -10,6 +10,7 @@ pub mod utils;
 pub mod defaults;
 pub mod strings;
 pub mod time;
+pub mod math;
 
 use gtmpl::Func;
 
@@ -49,6 +50,8 @@ pub static SPRIG: &[(&'static str, Func)] = &[
     ("nindent", strings::nindent as Func),
     // time
     ("now", time::now as Func),
+    // math
+    ("add1", math::add1 as Func),
     // defaults
     ("default", defaults::default as Func),
 ];
