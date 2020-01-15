@@ -51,7 +51,18 @@ pub static SPRIG: &[(&'static str, Func)] = &[
     // time
     ("now", time::now as Func),
     // math
-    ("add1", math::add1 as Func),
+    ("add1_i64", math::add1_i64 as Func),
+    ("add1_f64", math::add1_f64 as Func),
+    ("add_i64", math::add1_i64 as Func),
+    ("add_f64", math::add1_f64 as Func),
+    ("sub_i64", math::add1_i64 as Func),
+    ("sub_f64", math::add1_f64 as Func),
+    ("div_i64", math::add1_i64 as Func),
+    ("div_f64", math::add1_f64 as Func),
+    ("mod_i64", math::add1_i64 as Func),
+    ("mod_f64", math::add1_f64 as Func),
+    ("mul_i64", math::add1_i64 as Func),
+    ("mul_f64", math::add1_f64 as Func),
     // defaults
     ("default", defaults::default as Func),
 ];
