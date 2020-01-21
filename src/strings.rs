@@ -189,7 +189,7 @@ pub fn join(args: &[Value]) -> Result<Value, String> {
             &sep,
         )))
     } else {
-        return Err(String::from("second argument must be of type Array"));
+        Err(String::from("second argument must be of type Array"))
     }
 }
 

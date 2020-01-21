@@ -14,7 +14,7 @@ pub mod time;
 use gtmpl::Func;
 
 /// SPRIG functions.
-pub static SPRIG: &[(&'static str, Func)] = &[
+pub static SPRIG: &[(&str, Func)] = &[
     // strings
     ("base64encode", strings::base64encode as Func),
     ("base64decode", strings::base64decode as Func),
