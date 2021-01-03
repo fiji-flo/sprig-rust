@@ -1,10 +1,3 @@
-extern crate data_encoding;
-#[macro_use]
-extern crate gtmpl;
-extern crate gtmpl_value;
-extern crate itertools;
-extern crate rand;
-
 #[macro_use]
 pub mod utils;
 pub mod defaults;

@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use std::time::SystemTime;
 
+use gtmpl::gtmpl_fn;
 use gtmpl_value::Value;
 
 gtmpl_fn!(
