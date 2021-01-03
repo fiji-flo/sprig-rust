@@ -5,7 +5,6 @@ use std::str;
 
 use data_encoding::{BASE32, BASE64};
 use gtmpl::gtmpl_fn;
-use itertools;
 
 use gtmpl_value::{from_value, Value};
 
