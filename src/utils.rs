@@ -11,6 +11,7 @@ pub fn random_utf8(len: usize) -> String {
 pub fn random_ascii(len: usize) -> String {
     rand::thread_rng()
         .sample_iter(&Alphanumeric)
+        .map(char::from)
         .take(len)
         .collect()
 }
@@ -18,6 +19,7 @@ pub fn random_ascii(len: usize) -> String {
 pub fn random_alpha(len: usize) -> String {
     rand::thread_rng()
         .sample_iter(&Alphanumeric)
+        .map(char::from)
         .filter(|c| c.is_alphabetic())
         .take(len)
         .collect()
@@ -26,6 +28,7 @@ pub fn random_alpha(len: usize) -> String {
 pub fn random_numeric(len: usize) -> String {
     rand::thread_rng()
         .sample_iter(&Alphanumeric)
+        .map(char::from)
         .filter(|c| c.is_numeric())
         .take(len)
         .collect()
@@ -33,39 +36,41 @@ pub fn random_numeric(len: usize) -> String {
 
 #[cfg(test)]
 #[macro_export]
-macro_rules! val(
-        ($x:expr) => { { Value::from($x) } }
-    );
+macro_rules! val {
+    ($x:expr) => {{
+        Value::from($x)
+    }};
+}
 
 #[cfg(test)]
 #[macro_export]
-macro_rules! vval(
+macro_rules! vval{
         ($($x:expr),*) => { { vec![$(val!($x)),*] } }
-    );
+}
 
 #[cfg(test)]
 #[macro_export]
-macro_rules! test_fn_assert(
-        ($func:ident, $args:expr, $typ:ident, $ass:ident) => {
-            let v = $args;
-            let ret = $func(&v);
-            if let Ok(Value::$typ(ref x)) = ret {
-                return assert!($ass(x));
-            }
-            assert!(false);
+macro_rules! test_fn_assert {
+    ($func:ident, $args:expr, $typ:ident, $ass:ident) => {
+        let v = $args;
+        let ret = $func(&v);
+        if let Ok(Value::$typ(ref x)) = ret {
+            return assert!($ass(x));
         }
-    );
+        assert!(false);
+    };
+}
 
 #[cfg(test)]
 #[macro_export]
-macro_rules! test_fn(
-        ($func:ident, $args:expr, $exp:expr) => {
-            let v = $args;
-            let ret = $func(&v);
-            let expected = $exp;
-            assert_eq!(ret, Ok(Value::from(expected)));
-        }
-    );
+macro_rules! test_fn {
+    ($func:ident, $args:expr, $exp:expr) => {
+        let v = $args;
+        let ret = $func(&v);
+        let expected = $exp;
+        assert_eq!(ret, Ok(Value::from(expected)));
+    };
+}
 
 #[cfg(test)]
 mod test {
