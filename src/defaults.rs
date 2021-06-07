@@ -1,4 +1,4 @@
-use gtmpl_value::Value;
+use gtmpl_value::{FuncError, Value};
 
 /// Give a default value. Used like this: trim "   "| default "empty".
 /// Since trim produces an empty string, the default value is returned. For
@@ -6,9 +6,9 @@ use gtmpl_value::Value;
 /// For numbers, the value 0 will trigger the default. For booleans, false will
 /// trigger the default. For structs, the default is never returned (there is
 /// no clear empty condition). For everything else, nil value triggers a default.
-pub fn default(args: &[Value]) -> Result<Value, String> {
+pub fn default(args: &[Value]) -> Result<Value, FuncError> {
     if args.len() != 2 {
-        return Err(String::from("two arguments required"));
+        return Err(FuncError::ExactlyXArgs("default".into(), 2));
     }
 
     if is_empty(&args[1]) {

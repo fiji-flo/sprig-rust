@@ -68,7 +68,10 @@ macro_rules! test_fn {
         let v = $args;
         let ret = $func(&v);
         let expected = $exp;
-        assert_eq!(ret, Ok(Value::from(expected)));
+        match ret {
+            Ok(got) => assert_eq!(got, Value::from(expected)),
+            Err(e) => panic!("{}", e),
+        }
     };
 }
 

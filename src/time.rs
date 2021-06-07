@@ -2,15 +2,15 @@ use std::collections::HashMap;
 use std::time::SystemTime;
 
 use gtmpl::gtmpl_fn;
-use gtmpl_value::Value;
+use gtmpl_value::{FuncError, Value};
 
 gtmpl_fn!(
     #[doc = r#"Similar to golangs current time.Time. Not fully supported."#]
-    fn now() -> Result<Value, String> {
+    fn now() -> Result<Value, FuncError> {
         let mut map = HashMap::new();
         let ts = SystemTime::now()
             .duration_since(SystemTime::UNIX_EPOCH)
-            .map_err(|e| format!("{}", e))?
+            .map_err(|e| FuncError::Generic(e.to_string()))?
             .as_secs();
         map.insert(String::from("Unix"), Value::from(ts));
         Ok(map.into())

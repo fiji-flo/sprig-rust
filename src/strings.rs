@@ -3,29 +3,30 @@ use std::collections::HashMap;
 use std::iter;
 use std::str;
 
+use anyhow::anyhow;
 use data_encoding::{BASE32, BASE64};
 use gtmpl::gtmpl_fn;
 
-use gtmpl_value::{from_value, Value};
+use gtmpl_value::{from_value, FuncError, Value};
 
 use crate::utils;
 
 gtmpl_fn!(
     #[doc = r#"Base 64 encode a string."#]
-    fn base64encode(s: String) -> Result<String, String> {
+    fn base64encode(s: String) -> Result<String, FuncError> {
         Ok(BASE64.encode(&s.into_bytes()))
     }
 );
 
 gtmpl_fn!(
     #[doc = r#"Base 64 decode a string."#]
-    fn base64decode(s: String) -> Result<String, String> {
+    fn base64decode(s: String) -> Result<String, FuncError> {
         BASE64
             .decode(&s.into_bytes())
-            .map_err(|e| format!("unable to decode {}", e))
+            .map_err(|e| anyhow!("unable to decode {}", e).into())
             .and_then(|v| {
                 str::from_utf8(&v)
-                    .map_err(|e| format!("unable to decode: {}", e))
+                    .map_err(|e| anyhow!("unable to decode: {}", e).into())
                     .map(|s| s.to_owned())
             })
     }
@@ -33,20 +34,20 @@ gtmpl_fn!(
 
 gtmpl_fn!(
     #[doc = r#"Base 32 encode a string."#]
-    fn base32encode(s: String) -> Result<String, String> {
+    fn base32encode(s: String) -> Result<String, FuncError> {
         Ok(BASE32.encode(&s.into_bytes()))
     }
 );
 
 gtmpl_fn!(
     #[doc = r#"Base 32 decode a string."#]
-    fn base32decode(s: String) -> Result<String, String> {
+    fn base32decode(s: String) -> Result<String, FuncError> {
         BASE32
             .decode(&s.into_bytes())
-            .map_err(|e| format!("unable to decode {}", e))
+            .map_err(|e| anyhow!("unable to decode {}", e).into())
             .and_then(|v| {
                 str::from_utf8(&v)
-                    .map_err(|e| format!("unable to decode: {}", e))
+                    .map_err(|e| anyhow!("unable to decode: {}", e).into())
                     .map(|s| s.to_owned())
             })
     }
@@ -54,7 +55,7 @@ gtmpl_fn!(
 
 gtmpl_fn!(
     #[doc = r#"Truncate a string with ellipses. `abbrev 5 "hello world"` yields "he...""#]
-    fn abbrev(width: i64, s: String) -> Result<String, String> {
+    fn abbrev(width: i64, s: String) -> Result<String, FuncError> {
         if width < 4 || s.len() < width as usize {
             Ok(s)
         } else {
@@ -65,7 +66,7 @@ gtmpl_fn!(
 
 gtmpl_fn!(
     #[doc = r#"Abbreviate from both sides, yielding "...lo wo...""#]
-    fn abbrevboth(left: i64, right: i64, s: String) -> Result<String, String> {
+    fn abbrevboth(left: i64, right: i64, s: String) -> Result<String, FuncError> {
         let offset = cmp::min(left as usize, s.len());
         let max_width = cmp::min(right as usize, s.len());
         if max_width < 4 || offset > 0 && max_width < 7 || s.len() <= max_width as usize {
@@ -84,21 +85,21 @@ gtmpl_fn!(
 
 gtmpl_fn!(
     #[doc = r#"Golang's strings.ToUpper"#]
-    fn upper(s: String) -> Result<String, String> {
+    fn upper(s: String) -> Result<String, FuncError> {
         Ok(s.to_uppercase())
     }
 );
 
 gtmpl_fn!(
     #[doc = r#"Golang's strings.ToLower"#]
-    fn lower(s: String) -> Result<String, String> {
+    fn lower(s: String) -> Result<String, FuncError> {
         Ok(s.to_lowercase())
     }
 );
 
 gtmpl_fn!(
     #[doc = r#"Given a multi-word string, return the initials. `initials "Matt Butcher"` returns "MB""#]
-    fn initials(s: String) -> Result<String, String> {
+    fn initials(s: String) -> Result<String, FuncError> {
         Ok(s.split_whitespace()
             .map(|w| (&w[0..1]).to_owned())
             .collect())
@@ -107,35 +108,35 @@ gtmpl_fn!(
 
 gtmpl_fn!(
     #[doc = r#"Given a length, generate a random alphanumeric sequence"#]
-    fn rand_alpha_numeric(count: u64) -> Result<String, String> {
+    fn rand_alpha_numeric(count: u64) -> Result<String, FuncError> {
         Ok(utils::random_utf8(count as usize))
     }
 );
 
 gtmpl_fn!(
     #[doc = r#"Given a length, generate an alphabetic string"#]
-    fn rand_alpha(count: u64) -> Result<String, String> {
+    fn rand_alpha(count: u64) -> Result<String, FuncError> {
         Ok(utils::random_alpha(count as usize))
     }
 );
 
 gtmpl_fn!(
     #[doc = r#"Given a length, generate a random ASCII string (symbols included)"#]
-    fn rand_ascii(count: u64) -> Result<String, String> {
+    fn rand_ascii(count: u64) -> Result<String, FuncError> {
         Ok(utils::random_ascii(count as usize))
     }
 );
 
 gtmpl_fn!(
     #[doc = r#"Given a length, generate a string of digits."#]
-    fn rand_numeric(count: u64) -> Result<String, String> {
+    fn rand_numeric(count: u64) -> Result<String, FuncError> {
         Ok(utils::random_numeric(count as usize))
     }
 );
 
 gtmpl_fn!(
     #[doc = r#"Remove title casing"#]
-    fn untitle(s: String) -> Result<String, String> {
+    fn untitle(s: String) -> Result<String, FuncError> {
         let mut ws = true;
         Ok(s.chars()
             .map(|c| {
@@ -154,20 +155,20 @@ gtmpl_fn!(
 );
 
 gtmpl_fn!(
-    fn replace(old: String, new: String, s: String) -> Result<String, String> {
+    fn replace(old: String, new: String, s: String) -> Result<String, FuncError> {
         Ok(s.replace(&old, &new))
     }
 );
 
 gtmpl_fn!(
-    fn plural(one: String, many: String, count: i64) -> Result<String, String> {
+    fn plural(one: String, many: String, count: i64) -> Result<String, FuncError> {
         Ok(if count == 1 { one } else { many })
     }
 );
 
 gtmpl_fn!(
     #[doc = r#"Truncate a string (no suffix). `trunc 5 "Hello World"` yields "hello"."#]
-    fn trunc(len: i64, s: String) -> Result<String, String> {
+    fn trunc(len: i64, s: String) -> Result<String, FuncError> {
         if len < 0 || (len as usize) > s.len() {
             Ok(s)
         } else {
@@ -177,19 +178,20 @@ gtmpl_fn!(
 );
 
 /// Golang's strings.Join, but as `join SEP SLICE`
-pub fn join(args: &[Value]) -> Result<Value, String> {
+pub fn join(args: &[Value]) -> Result<Value, FuncError> {
     if args.len() != 2 {
-        return Err(String::from("two arguments required"));
+        return Err(FuncError::AtLeastXArgs("join".into(), 2));
     }
-    let sep: String =
-        from_value(&args[0]).ok_or_else(|| "unable to convert from Value".to_owned())?;
+    let sep: String = from_value(&args[0]).ok_or(FuncError::UnableToConvertFromValue)?;
     if let Value::Array(ref list) = args[1] {
         Ok(Value::from(itertools::join(
             list.iter().map(|v| v.to_string()),
             &sep,
         )))
     } else {
-        Err(String::from("second argument must be of type Array"))
+        Err(FuncError::Generic(
+            "second argument must be of type Array".into(),
+        ))
     }
 }
 
@@ -197,7 +199,7 @@ gtmpl_fn!(
     #[doc = r#"Golang's strings.Split, but as `split SEP STRING`. The results are returned
                as a map with the indexes set to _N, where N is an integer starting from 0.
                Use it like this: `{{$v := "foo/bar/baz" | split "/"}}{{$v._0}}` (Prints `foo`)"#]
-    fn split(sep: String, orig: String) -> Result<HashMap<String, String>, String> {
+    fn split(sep: String, orig: String) -> Result<HashMap<String, String>, FuncError> {
         let m: HashMap<String, String> = orig
             .split(&sep)
             .enumerate()
@@ -209,7 +211,7 @@ gtmpl_fn!(
 
 gtmpl_fn!(
     #[doc = r#"Given string, start, and length, return a substr."#]
-    fn substring(start: i64, len: i64, s: String) -> Result<String, String> {
+    fn substring(start: i64, len: i64, s: String) -> Result<String, FuncError> {
         let from = if start < 0 { 0 } else { start as usize };
         let to = if len < 0 { s.len() } else { len as usize };
         if from > to || from > s.len() || to > s.len() {
@@ -222,7 +224,7 @@ gtmpl_fn!(
 
 gtmpl_fn!(
     #[doc = r#"Golang's strings.TrimSpace"#]
-    fn trim(s: String) -> Result<String, String> {
+    fn trim(s: String) -> Result<String, FuncError> {
         Ok(s.trim().to_owned())
     }
 );
@@ -230,7 +232,7 @@ gtmpl_fn!(
 gtmpl_fn!(
     #[doc = r#"Golang's strings.Trim, but with the argument order reversed
                `trimAll "$" "$5.00"` or `"$5.00 | trimAll "$""#]
-    fn trim_all(substr: String, s: String) -> Result<String, String> {
+    fn trim_all(substr: String, s: String) -> Result<String, FuncError> {
         let x: &[_] = &substr.chars().collect::<Vec<_>>();
         Ok(s.trim_matches(x).to_owned())
     }
@@ -239,42 +241,42 @@ gtmpl_fn!(
 gtmpl_fn!(
     #[doc = r#"Golang's strings.TrimSuffix, but with the argument order reversed:
                `trimSuffix "-" "ends-with-"`"#]
-    fn trim_suffix(substr: String, s: String) -> Result<String, String> {
+    fn trim_suffix(substr: String, s: String) -> Result<String, FuncError> {
         Ok(s.trim_end_matches(&substr).to_owned())
     }
 );
 
 gtmpl_fn!(
     #[doc = r#"Golang's strings.TrimPrefix, but with the argument order reversed `trimPrefix "$" "$5"`"#]
-    fn trim_prefix(substr: String, s: String) -> Result<String, String> {
+    fn trim_prefix(substr: String, s: String) -> Result<String, FuncError> {
         Ok(s.trim_start_matches(&substr).to_owned())
     }
 );
 
 gtmpl_fn!(
     #[doc = r#"Golang's strings.Contains, but with the arguments switched: `contains substr str`."#]
-    fn contains(substr: String, s: String) -> Result<bool, String> {
+    fn contains(substr: String, s: String) -> Result<bool, FuncError> {
         Ok(s.contains(&substr))
     }
 );
 
 gtmpl_fn!(
     #[doc = r#"Golang's strings.hasSuffix, but with the arguments switched"#]
-    fn has_suffix(substr: String, s: String) -> Result<bool, String> {
+    fn has_suffix(substr: String, s: String) -> Result<bool, FuncError> {
         Ok(s.ends_with(&substr))
     }
 );
 
 gtmpl_fn!(
     #[doc = r#"Golang's strings.hasPrefix, but with the arguments switched"#]
-    fn has_prefix(substr: String, s: String) -> Result<bool, String> {
+    fn has_prefix(substr: String, s: String) -> Result<bool, FuncError> {
         Ok(s.starts_with(&substr))
     }
 );
 
 gtmpl_fn!(
     #[doc = r#"Remove all space characters from a string. nospace "h e l l o" becomes "hello""#]
-    fn nospace(s: String) -> Result<String, String> {
+    fn nospace(s: String) -> Result<String, FuncError> {
         Ok(s.replace(' ', ""))
     }
 );
@@ -282,7 +284,7 @@ gtmpl_fn!(
 gtmpl_fn!(
     #[doc = r#"strings.Repeat, but with the arguments switched: repeat count str.
                (This simplifies common pipelines)"#]
-    fn repeat(count: u64, s: String) -> Result<String, String> {
+    fn repeat(count: u64, s: String) -> Result<String, FuncError> {
         Ok(itertools::join(iter::repeat(s).take(count as usize), ""))
     }
 );
@@ -297,7 +299,7 @@ fn indent_(spaces: u64, s: String) -> String {
 gtmpl_fn!(
     #[doc = r#"Indent every line in a given string to the specified indent width.
                This is useful when aligning multi-line strings."#]
-    fn indent(spaces: u64, s: String) -> Result<String, String> {
+    fn indent(spaces: u64, s: String) -> Result<String, FuncError> {
         Ok(indent_(spaces, s))
     }
 );
@@ -305,7 +307,7 @@ gtmpl_fn!(
 gtmpl_fn!(
     #[doc = r#"Same as the indent function, but prepends a new line to the beginning of
                the string."#]
-    fn nindent(spaces: u64, s: String) -> Result<String, String> {
+    fn nindent(spaces: u64, s: String) -> Result<String, FuncError> {
         Ok(format!("\n{}", indent_(spaces, s)))
     }
 );
